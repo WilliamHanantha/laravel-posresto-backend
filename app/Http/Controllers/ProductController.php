@@ -10,7 +10,13 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::paginate(10);
+        $products = Product::when($request->input('name'), function ($query , $name) {
+            $query->where('name', 'like', '%' . $name . '%')
+            ->orWhereHas('category', function ($categoryQuery) use ($name) {
+                $categoryQuery->where('name', 'like', '%' . $name . '%');
+            })
+            ->orWhere('is_available', 'like', '%' . $name . '%');
+        })->paginate(10);
         return view('pages.products.index', compact('products'));
     }
 

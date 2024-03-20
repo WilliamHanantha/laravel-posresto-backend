@@ -32,10 +32,10 @@ class CategoryController extends Controller
 
         $category->save();
 
-        if($request->hasFile('image')) {
+        if ($request->hasFile('image')) {
             $image = $request->file('image');
             $image->storeAs('public/categories', $category->id . '.' . $image->getClientOriginalExtension());
-            $category->image ='storage/categories/' . $category->id . '.' . $image->getClientOriginalExtension();
+            $category->image = 'storage/categories/' . $category->id . '.' . $image->getClientOriginalExtension();
             $category->save();
         }
 
@@ -50,26 +50,29 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $category = Category::findOrFail($id);
-        return view('pages.categories.edit',compact('category'));
+        return view('pages.categories.edit', compact('category'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name'=> 'required',
+            'name' => 'required',
             // 'image' => 'required|image|:png,jpg,jpeg,gif,svg|max:2048',s
         ]);
 
         $category = Category::find($id);
         $category->name = $request->name;
         $category->description = $request->description;
+        $category->save();
 
-        if($request->hasFile('image')) {
+
+        if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $image->storeAs('public/categories', $category->id . '.' . $image->getClientOriginalExtension());
-            $category->image ='storage/categories/' . $category->id . '.' . $image->getClientOriginalExtension();
-            $category->save();
+            $imageName = $category->id . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public/categories', $imageName);
+            $category->image = 'storage/categories/' . $imageName;
         }
+        $category->save();
 
         return redirect()->route('categories.index')->with('success', 'Category updated successfuly');
     }
@@ -77,7 +80,7 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $category = Category::find($id);
-        $category -> delete();
+        $category->delete();
 
         return redirect()->route('categories.index')->with('success', 'Category deleted successfuly');
     }
